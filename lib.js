@@ -1,15 +1,23 @@
 (function() {
     var audCon = new (window.AudioContext || window.webkitAudioContext || alert("Could not find audio context"))();
+    var audComp = audCon.createDynamicsCompressor();
+    audComp.threshold.value = -50;
+    audComp.knee.value = 40;
+    audComp.ratio.value = 12;
+    audComp.attack.value = 0;
+    audComp.release.value = 0;
+    audComp.connect(audCon.destination);
 
     var toneCache = {};
     var createTone = function(freq, dur, callback) {
-        var oss = audCon.createOscillator();
+        var oss = audComp.createOscillator();
         toneCache[freq] = oss;
         oss.frequency.value = freq;
-        oss.connect(audCon.destination);
+        oss.connect(audComp);
         oss.start();
         setTimeout(function() {
             oss.stop();
+            oss.disconnect();
             if (callback) callback();
         }, dur);
     }

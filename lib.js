@@ -1,0 +1,22 @@
+(function() {
+    var audCon = window.AudioContext || window.webkitAudioContext;
+    if (audCon) {
+        audCon = audCon();
+    } else {
+        alert("Could not load sound lib: no audio context");
+        return;
+    }
+
+    var toneCache = {};
+    var createTone = function(freq, dur, callback) {
+        var oss = audCon.createOscillator();
+        oss.frequency.value = freq;
+        oss.connect(audCon.destination);
+        oss.start();
+        setTimeout(function() {
+            oss.stop();
+            if (callback) callback();
+        }, dur);
+    }
+    createTone(1000, 1000);
+}

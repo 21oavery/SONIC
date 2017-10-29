@@ -17,7 +17,7 @@
     var baseFreq = 18000;
     var incFreq = 200;
     var binsFreq = 8;
-    var transmitByte(byte, callback) {
+    var transmitByte(byte, dur, callback) {
         if ((byte < 0) || (byte > 255)) {
             return false;
         }
@@ -25,7 +25,7 @@
         for (int i = 8; i > 0; i--) {
             var v = 2 ** i;
             if (v <= byte) {
-                createTone((i - 1) * incFreq + baseFreq);
+                createTone((i - 1) * incFreq + baseFreq, dur);
                 byte -= v;
             }
         }

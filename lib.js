@@ -19,5 +19,5 @@
             if (callback) callback();
         }, dur);
     }
-    createTone(1000, 1000);
+    window.createTone = createTone;
 })();

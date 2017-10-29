@@ -10,6 +10,7 @@
     var toneCache = {};
     var createTone = function(freq, dur, callback) {
         var oss = audCon.createOscillator();
+        toneCache[freq] = oss;
         oss.frequency.value = freq;
         oss.connect(audCon.destination);
         oss.start();

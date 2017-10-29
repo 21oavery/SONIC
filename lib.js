@@ -13,5 +13,22 @@
             if (callback) callback();
         }, dur);
     }
-    window.createTone = createTone;
+
+    var baseFreq = 18000;
+    var incFreq = 200;
+    var binsFreq = 8;
+    var transmitByte(byte, callback) {
+        if ((byte < 0) || (byte > 255)) {
+            return false;
+        }
+        local bits = {};
+        for (int i = 8; i > 0; i--) {
+            var v = 2 ** i;
+            if (v <= byte) {
+                createTone((i - 1) * incFreq + baseFreq);
+                byte -= v;
+            }
+        }
+    }
+    var window.transmitByte = transmitByte;
 })();

@@ -22,7 +22,7 @@
             return false;
         }
         var bits = {};
-        for (int i = 8; i > 0; i--) {
+        for (var i = 8; i > 0; i--) {
             var v = 2 ** i;
             if (v <= byte) {
                 createTone((i - 1) * incFreq + baseFreq, dur);

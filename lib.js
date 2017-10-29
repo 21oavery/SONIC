@@ -1,11 +1,5 @@
 (function() {
-    var audCon = window.AudioContext || window.webkitAudioContext;
-    if (audCon) {
-        audCon = new audCon();
-    } else {
-        alert("Could not load sound lib: no audio context");
-        return;
-    }
+    var audCon = new (window.AudioContext || window.webkitAudioContext || alert("Could not find audio context"))();
 
     var toneCache = {};
     var createTone = function(freq, dur, callback) {

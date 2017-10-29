@@ -1,7 +1,7 @@
 (function() {
     var audCon = window.AudioContext || window.webkitAudioContext;
     if (audCon) {
-        audCon = audCon();
+        audCon = new audCon();
     } else {
         alert("Could not load sound lib: no audio context");
         return;

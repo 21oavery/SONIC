@@ -21,7 +21,7 @@
         if ((byte < 0) || (byte > 255)) {
             return false;
         }
-        local bits = {};
+        var bits = {};
         for (int i = 8; i > 0; i--) {
             var v = 2 ** i;
             if (v <= byte) {

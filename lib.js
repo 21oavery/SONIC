@@ -30,5 +30,5 @@
             }
         }
     }
-    var window.transmitByte = transmitByte;
+    window.transmitByte = transmitByte;
 })();

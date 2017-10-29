@@ -17,7 +17,7 @@
     var baseFreq = 18000;
     var incFreq = 200;
     var binsFreq = 8;
-    var transmitByte(byte, dur, callback) {
+    var transmitByte = function(byte, dur, callback) {
         if ((byte < 0) || (byte > 255)) {
             return false;
         }

@@ -50,14 +50,13 @@
         }
         var i = 0;
         var a;
-        var ok = true;
         a = function() {
             if ((++i) > bytes.length) {
-                if (callback) callback();
+                if (callback) callback(true);
                 return;
             }
             if (!transmitByte(bytes.charCodeAt(0), dur, a)) {
-                ok = false;
+                if (callback) callback(false);
                 return;
             }
         }

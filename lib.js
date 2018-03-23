@@ -61,6 +61,7 @@
                 return;
             }
         }
+        a();
     }
     window.transmitBytes = transmitBytes;
 })();

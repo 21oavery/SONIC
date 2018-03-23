@@ -51,6 +51,7 @@
         var i = 0;
         var a;
         a = function() {
+            console.log("Looping...")
             if ((++i) > bytes.length) {
                 if (callback) callback(true);
                 return;

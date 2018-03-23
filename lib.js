@@ -9,6 +9,7 @@
     audComp.connect(audCon.destination);
     
     var createTone = function(freq, dur, callback) {
+        console.log("Begining " + freq + " for " + dur);
         var oss = audComp.createOscillator();
         oss.frequency.value = freq;
         oss.connect(audComp);
@@ -24,6 +25,7 @@
     var binCount = 8;
     var binSize = 250;
     var transmitByte = function(byte, dur, callback) {
+        console.log("Transmitting " + byte + "...");
         if ((byte < 0) || (byte > 255)) {
             return false;
         }

@@ -1,19 +1,19 @@
 (function() {
     var audCon = new (window.AudioContext || window.webkitAudioContext || alert("Could not find audio context"))();
     /*var audComp = audCon.createDynamicsCompressor();
-    audComp.threshold.value = -50;
-    audComp.knee.value = 40;
-    audComp.ratio.value = 12;
-    audComp.attack.value = 0;
-    audComp.release.value = 0;
+    audComp.threshold.setValueAtTime(-50, audCon.currentTime);
+    audComp.knee.setValueAtTime(40, audCon.currentTime);
+    audComp.ratio.setValueAtTime(12, audCon.currentTime);
+    audComp.attack.setValueAtTime(0, audCon.currentTime);
+    audComp.release.setValueAtTime(0, audCon.currentTime);
     audComp.connect(audCon.destination);*/
     var audGain = audCon.createGain();
-    audGain.gain.value = 0.125;
+    audGain.gain.setValueAtTime(0.125, audCon.currentTime);
+    audGain.connect(audCon.destination);
 
     var createTone = function(freq, dur, callback) {
-        console.log("Begining " + freq + " for " + dur);
         var oss = audCon.createOscillator();
-        oss.frequency.value = freq;
+        oss.frequency.setValueAtTime(freq, audCon.currentTime);
         oss.connect(audGain);
         oss.start();
         setTimeout(function() {
@@ -27,15 +27,16 @@
     var binCount = 8;
     var binSize = 250;
     var transmitByte = function(byte, dur, callback) {
-        console.log("Transmitting " + byte + "...");
+        console.log("> " + String.fromCharCode(byte));
         if ((byte < 0) || (byte > 255)) {
             return false;
         }
         var bits = {};
-        var check = 8;
+        var check = 0;
         for (var i = 8; i > 0; --i) {
             var v = 2 ** i;
             if (v <= byte) {
+                ++check;
                 createTone((i - 1) * binSize + baseFreq, dur, (callback) ? function() {
                     if ((--check) == 0) {
                         callback();
@@ -46,7 +47,7 @@
         }
         return true;
     }
-    
+
     var transmitBytes = function(bytes, dur, callback) {
         if ((typeof bytes) !== "string") {
             return false;
@@ -54,15 +55,15 @@
         var i = 0;
         var a;
         a = function() {
-            console.log("Looping...")
-            if ((++i) > bytes.length) {
+            if (i >= bytes.length) {
                 if (callback) callback(true);
                 return;
             }
-            if (!transmitByte(bytes.charCodeAt(0), dur, a)) {
+            if (!transmitByte(bytes.charCodeAt(i), dur, a)) {
                 if (callback) callback(false);
                 return;
             }
+            ++i;
         }
         a();
     }

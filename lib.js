@@ -1,18 +1,20 @@
 (function() {
     var audCon = new (window.AudioContext || window.webkitAudioContext || alert("Could not find audio context"))();
-    var audComp = audCon.createDynamicsCompressor();
+    /*var audComp = audCon.createDynamicsCompressor();
     audComp.threshold.value = -50;
     audComp.knee.value = 40;
     audComp.ratio.value = 12;
     audComp.attack.value = 0;
     audComp.release.value = 0;
-    audComp.connect(audCon.destination);
-    
+    audComp.connect(audCon.destination);*/
+    var audGain = audCon.createGain();
+    audGain.gain.value = 0.125;
+
     var createTone = function(freq, dur, callback) {
         console.log("Begining " + freq + " for " + dur);
-        var oss = audComp.createOscillator();
+        var oss = audCon.createOscillator();
         oss.frequency.value = freq;
-        oss.connect(audComp);
+        oss.connect(audGain);
         oss.start();
         setTimeout(function() {
             oss.stop();
@@ -42,6 +44,7 @@
                 byte -= v;
             }
         }
+        return true;
     }
     
     var transmitBytes = function(bytes, dur, callback) {

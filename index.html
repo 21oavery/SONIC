@@ -1,6 +1,7 @@
 <html>
 <body>
 <script src="lib.js"></script>
-<button onclick="window.transmitBytes('LOL, I did it', 100, function() {alert('DONE')})">transmit</button>
+<script>window.addByteListener(18000, 100, 100, function(c) { console.log("< " + String.fromCharCode(c) + " (" + c + ")") });</script>
+<button onclick="window.transmitBytes('LOL, I did it', 18000, 100, 100, function() {alert('DONE')})">transmit</button>
 </body>
 </html>

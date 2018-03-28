@@ -26,40 +26,60 @@
         }, dur);
     }
 
-    var transmitByte = function(byte, baseFreq, binSize, dur, callback) {
-        console.log("> " + String.fromCharCode(byte));
-        if ((byte < 0) || (byte > 255)) {
+    var transmitNumber = function(n, numberBase, baseFreq, binSize, dur, callback) {
+        console.log("> " + n + "/" + numberBase);
+        if ((n < 0) || (n >= max)) {
             return false;
         }
-        var bits = {};
-        var check = 0;
-        for (var i = 8; i > 0; --i) {
-            var v = 2 ** i;
-            if (v <= byte) {
-                ++check;
-                createTone((i - 1) * binSize + baseFreq, dur, callback ? function() {
-                    if ((--check) == 0) {
-                        callback();
-                    }
-                } : null);
-                byte -= v;
-            }
-        }
+        createTone(n * binSize + baseFreq, dur, callback);
         return true;
     }
 
-    var transmitBytes = function(bytes, baseFreq, binSize, dur, callback) {
-        if ((typeof bytes) !== "string") {
+    var transmitBytes = function(bytes, baseFreq, binSize, binCount, dur, callback) {
+        if (binCount > 256) {
             return false;
+        } else {
+            var l = Math.log2(binCount);
+            if (Math.floor(l) !== l) {
+                return false;
+            }
+            binCount = l;
+        }
+        console.log("OK");
+        var ns = bytes;
+        if (binCount != 8) {
+            var bits = new Uint8Array(Math.ceil(8 * bytes.length / binCount) * binCount);
+            for (var i = 0; i < bytes.length; ++i) {
+                var n = bytes[i];
+                for (let j = 15; j >= 0; --j) {
+                    let v = 2 ** j;
+                    if (n >= v) {
+                        n -= v;
+                        bits[i * 8 + j] = 1;
+                    }
+                }
+            }
+            for (var i = (bytes.length * 8); i < bits.length; ++i) {
+                bits[i] = 0;
+            }
+            ns = new Uint8Array(bits.length / binCount);
+            for (var i = 0; i < ns.length; ++i) {
+                ns[i] = 0;
+                for (var j = 0; j < binCount; ++j) {
+                    if (bits[i * binCount + j] == 1) {
+                        ns[i] += 2 ** j;
+                    }
+                }
+            }
         }
         var i = 0;
         var a;
         a = function() {
-            if (i >= bytes.length) {
+            if (i >= ns.length) {
                 if (callback) callback(true);
                 return;
             }
-            if (!transmitByte(bytes.charCodeAt(i), baseFreq, binSize, dur, a)) {
+            if (!transmitNumber(ns[i], binCount, baseFreq, binSize, dur, a)) {
                 if (callback) callback(false);
                 return;
             }
@@ -69,9 +89,16 @@
     }
     window.transmitBytes = transmitBytes;
 
+    var transmitString = function(s, p1, p2, p3, p4, p5) {
+        var d = new Uint16Array(s.length);
+        for (var i = 0; i < s.length; ++i) d[i] = s.charCodeAt(i);
+        return transmitBytes(new Uint8Array(d.buffer), p1, p2, p3, p4, p5);
+    }
+    window.transmitString = transmitString;
+
     // Receive Section
 
-    var addByteListener = function(baseFreq, binSize, dur, callback) {
+    var addByteListener = function(baseFreq, binSize, binCount, dur, callback) {
         navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(function(stream) {
             var mic = audCon.createMediaStreamSource(stream);
             var audAn = audCon.createAnalyser();
@@ -85,13 +112,18 @@
             var data = new Float32Array(audAn.frequencyBinCount);
             setInterval(function() {
                 audAn.getFloatFrequencyData(data);
-                var b = 0;
-                for (var i = 0; i < 8; ++i) {
+                var c = 0;
+                var max = -1/0;
+                for (var i = 0; i < binCount; ++i) {
                     var f = baseFreq + binSize * i;
                     var index = Math.floor(f / fftBinSize + 0.5);
                     //console.log(index + "/" + data.length + " (" + (index * fftBinSize) + "/" + f + "): " + data[index]);
-                    b += ((data[index] >= 0.01) ? 1 : 0) * (2 ** i);
+                    if (data[index] > max) {
+                        max = data[index];
+                        c = i;
+                    }
                 }
+                console.log(c + ": " + max);
                 //callback(b);
             }, 10);
         }).catch(function (e) {
